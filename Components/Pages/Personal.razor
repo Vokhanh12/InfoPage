@@ -1,0 +1,47 @@
+@page "/personal"
+
+@rendermode InteractiveServer
+@namespace MyApplication.MainLayout
+@using MyApplication.Controller
+@using MyApplication.Enties
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+<PageTitle>Personal</PageTitle>
+
+<MudContainer>
+    <MudText Typo="Typo.h4" GutterBottom="true">Personal Information</MudText>
+
+    <MudPaper Class="d-flex align-center flex-column p-4" Elevation="4" Width="100%">
+        @if (myUser != null)
+        {
+            <MudText Typo="Typo.body1">ID: @myUser.Id</MudText>
+            <MudText Typo="Typo.body1">First Name: @myUser.FirstName</MudText>
+            <MudText Typo="Typo.body1">Last Name: @myUser.LastName</MudText>
+            <MudText Typo="Typo.body1">Joining Date: @myUser.JoiningDate.ToString("dd/MM/yyyy")</MudText>
+            <MudText Typo="Typo.body1">Official Joining Date: @myUser.OfficialJoiningDate.ToString("dd/MM/yyyy")</MudText>
+            <MudText Typo="Typo.body1">Seniority Date: @myUser.SeniorityDate.ToString("dd/MM/yyyy")</MudText>
+            <MudText Typo="Typo.body1">Work Group: @myUser.WorkGroup</MudText>
+            <MudText Typo="Typo.body1">Department: @myUser.Department</MudText>
+            <MudText Typo="Typo.body1">Job Title: @myUser.JobTitle</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1">Loading...</MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private User myUser;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await ProtectedLocalStore.GetAsync<User>("user");
+            myUser = result.Value;
+            StateHasChanged(); // Ensure the UI updates after the user is loaded
+        }
+    }
+}

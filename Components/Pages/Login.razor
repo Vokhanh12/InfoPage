@@ -1,0 +1,79 @@
+@page "/login"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using MyApplication.Controller
+@using MyApplication.Enties
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+@namespace MyApplication.Layouts
+@inject NavigationManager NavigationManager
+
+@layout LoginLayout
+
+@inject LoginController controller
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Elevation="4">
+        <MudText Typo="Typo.h6" Class="ml-2">Login Page</MudText>
+    </MudAppBar>
+
+    <MudPaper Class="d-flex align-center flex-grow-1 gap-4" Width="100%">
+        <MudContainer MaxWidth="MaxWidth.Small">
+            <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Tài khoản" HelperText="Max. 8 characters" @bind-Value="model.Username"
+                            For="@(() => model.Username)" />
+
+                        <MudTextField Label="Mật khẩu" HelperText="Choose a strong password" Class="mt-3"
+                            @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                            Class="ml-auto">Đăng nhập</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+        </MudContainer>
+    </MudPaper>
+
+    @code {
+        LoginAccountForm model = new LoginAccountForm();
+        bool success;
+        string errorMessage;
+
+        public class LoginAccountForm
+        {
+        [Required]
+        [StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+        public string Username { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        public string Password { get; set; }
+        }
+
+        private async Task OnValidSubmit()
+        {
+        User user = controller.Login(model.Username, model.Password);
+
+        if (user != null)
+        {
+            success = true;
+            
+            await ProtectedLocalStore.SetAsync("user", user); 
+
+            NavigationManager.NavigateTo("/home");
+        }
+        else
+        {
+            success = false;
+            errorMessage = "Invalid username or password.";
+        }
+        StateHasChanged();
+        }
+
+    }
+</MudLayout>

@@ -1,0 +1,80 @@
+﻿@page "/home"
+@rendermode InteractiveServer
+@namespace MyApplication.MainLayout
+@using MyApplication.Controller
+@using MyApplication.Enties
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+<PageTitle>Home</PageTitle>
+
+@inject HomeController controller
+
+<MudTable Items="@Users">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Thông tin nhân sự</MudText>
+        <button @onclick="ToggleCard">Show Card</button>
+
+        @if (showCard)
+        {
+            <div class="card">
+                helloworld
+            </div>
+        }
+        <MudSpacer />
+        <MudTextField @bind-Value="@searchString1" Placeholder="Search" Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Chi tiết mã</MudTh>
+        <MudTh>Họ tên nhân viên</MudTh>
+        <MudTh>Vào làm</MudTh>
+        <MudTh>Vào làm C.thức</MudTh>
+        <MudTh>Thâm niên</MudTh>
+        <MudTh>Nhóm làm việc</MudTh>
+        <MudTh>Phòng ban</MudTh>
+        <MudTh>Chức danh</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Chi tiết mã">@context.Id
+            <MudIconButton Icon="@Icons.Material.Filled.Share" Disabled="true" aria-label="share">
+            </MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="Họ tên nhân viên">@context.FirstName @context.LastName</MudTd>
+        <MudTd DataLabel="Vào làm">@context.JoiningDate.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="Vào làm C.thức">@context.OfficialJoiningDate.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="Thâm niên">@context.SeniorityDate.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="Nhóm làm việc">@context.WorkGroup</MudTd>
+        <MudTd DataLabel="Phòng ban">@context.Department</MudTd>
+        <MudTd DataLabel="Chức danh">@context.JobTitle</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private User myUser;
+    private List<User> Users = new();
+    private string searchString1 = "";
+    private bool showCard = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Users = controller.getAllUsers();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await ProtectedLocalStore.GetAsync<User>("user");
+            myUser = result.Value;
+        }
+    }
+
+    private void ToggleCard()
+    {
+        showCard = !showCard;
+    }
+}

@@ -1,0 +1,16 @@
+@inherits LayoutComponentBase
+
+@namespace MyApplication.Layouts
+
+@using MudBlazor
+
+<MudThemingProvider />
+<MudLayout>
+    <MudAppBar Color="Color.Primary">
+        <MudText Typo="Typo.h6" Class="ml-2">Trang Đăng Nhập</MudText>
+    </MudAppBar>
+
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
